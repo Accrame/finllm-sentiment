@@ -1,0 +1,58 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+.env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model weights (large files)
+outputs/
+models/
+*.bin
+*.safetensors
+*.gguf
+*.pt
+*.pth
+
+# Datasets (download separately)
+data/raw/
+*.csv
+*.json
+*.parquet
+
+# HuggingFace cache
+.cache/
+~/.cache/huggingface/
+
+# Weights & Biases
+wandb/
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Build
+*.egg-info/
+dist/
+build/
