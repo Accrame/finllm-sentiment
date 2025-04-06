@@ -85,6 +85,12 @@ class FinLLMTrainer:
             self.config.base_model, trust_remote_code=True
         )
 
+        # FIX: pad token must be set BEFORE training or loss goes to nan
+        # spent 2 hours debugging this lol
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            self.tokenizer.pad_token_id = self.tokenizer.eos_token_id
+
         model_kwargs = {"trust_remote_code": True, "device_map": "auto"}
         if bnb_config:
             model_kwargs["quantization_config"] = bnb_config
