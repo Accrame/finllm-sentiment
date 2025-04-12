@@ -1,0 +1,83 @@
+# LoRA config for Mistral-7B fine-tuning
+# Updated: reduced batch size after OOM on 16GB GPU
+
+model:
+  base_model: "mistralai/Mistral-7B-v0.1"
+  quantization: "4bit"  # need this for 16GB VRAM
+  torch_dtype: "float16"
+  trust_remote_code: true
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  bias: "none"
+  task_type: "CAUSAL_LM"
+  target_modules:
+    - "q_proj"
+    - "v_proj"
+    - "k_proj"
+    - "o_proj"
+    - "gate_proj"
+    - "up_proj"
+    - "down_proj"
+
+training:
+  output_dir: "./outputs/finllm-mistral"
+  num_train_epochs: 3
+  # FIXME: had to drop from 8 to 4 bc of CUDA OOM even with 4bit
+  # gradient_accumulation compensates for smaller batch
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4
+  learning_rate: 2.0e-4
+  warmup_ratio: 0.03
+  max_seq_length: 512
+
+  fp16: true
+  bf16: false
+  gradient_checkpointing: true
+  optim: "paged_adamw_32bit"
+
+  weight_decay: 0.001
+  max_grad_norm: 0.3
+
+  logging_steps: 10
+  save_steps: 100
+  eval_strategy: "steps"
+  eval_steps: 100
+  save_total_limit: 3
+  load_best_model_at_end: true
+
+  report_to: "none"
+  run_name: "finllm-mistral-sentiment"
+
+data:
+  dataset_name: "financial_phrasebank"
+  subset: "sentences_allagree"
+  text_column: "sentence"
+  label_column: "label"
+  train_split: 0.8
+  seed: 42
+  max_length: 512
+  truncation: true
+
+  augmentation:
+    enabled: false
+    synonym_replacement: 0.1
+    random_swap: 0.1
+
+inference:
+  max_new_tokens: 50
+  temperature: 0.1
+  do_sample: false
+  use_json_output: true
+
+wandb:
+  project: "finllm-sentiment"
+  entity: null
+  tags:
+    - "sentiment-analysis"
+    - "financial"
+    - "lora"
+    - "mistral"
