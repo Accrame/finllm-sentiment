@@ -25,3 +25,36 @@ def get_lora_config(r=16, lora_alpha=32, lora_dropout=0.05,
         bias=bias,
         inference_mode=False,
     )
+
+
+def get_model_target_modules(model_name):
+    """Get the right target modules for each model architecture."""
+    name = model_name.lower()
+
+    if "llama" in name or "mistral" in name:
+        return ["q_proj", "v_proj", "k_proj", "o_proj",
+                "gate_proj", "up_proj", "down_proj"]
+    elif "phi" in name:
+        return ["q_proj", "v_proj", "k_proj", "dense", "fc1", "fc2"]
+    elif "falcon" in name:
+        return ["query_key_value", "dense", "dense_h_to_4h", "dense_4h_to_h"]
+    elif "gpt" in name:
+        return ["c_attn", "c_proj", "c_fc"]
+    else:
+        return ["q_proj", "v_proj"]
+
+
+def calculate_trainable_params(model):
+    """Count trainable vs total params."""
+    trainable = 0
+    total = 0
+    for _, param in model.named_parameters():
+        total += param.numel()
+        if param.requires_grad:
+            trainable += param.numel()
+
+    return {
+        "trainable_params": trainable,
+        "total_params": total,
+        "trainable_percent": 100 * trainable / total,
+    }

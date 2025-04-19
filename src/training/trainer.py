@@ -14,7 +14,7 @@ from transformers import (
 )
 from trl import SFTTrainer
 
-from .lora_config import get_lora_config
+from .lora_config import get_lora_config, get_model_target_modules, calculate_trainable_params
 
 
 @dataclass
@@ -109,12 +109,18 @@ class FinLLMTrainer:
                 use_gradient_checkpointing=self.config.gradient_checkpointing,
             )
 
+        # use model-specific target modules
+        target_modules = get_model_target_modules(self.config.base_model)
         lora_cfg = get_lora_config(
             r=self.config.lora_r,
             lora_alpha=self.config.lora_alpha,
             lora_dropout=self.config.lora_dropout,
+            target_modules=target_modules,
         )
         self.model = get_peft_model(self.model, lora_cfg)
+
+        params = calculate_trainable_params(self.model)
+        print(f"Trainable: {params['trainable_params']:,} ({params['trainable_percent']:.2f}%)")
 
     def train(self, dataset, text_field="formatted_text"):
         """Run training loop."""
