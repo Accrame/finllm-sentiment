@@ -11,6 +11,13 @@ Text: {text}
 
 Sentiment (positive/negative/neutral):"""
 
+SENTIMENT_WITH_REASONING = """Analyze the sentiment of this financial text. Provide your reasoning.
+
+Text: {text}
+
+Analysis:
+Sentiment: """
+
 LABEL_MAP = {0: "positive", 1: "negative", 2: "neutral"}
 LABEL_TO_IDX = {"positive": 0, "negative": 1, "neutral": 2}
 
@@ -61,3 +68,29 @@ class FinancialSentimentDataset:
             "validation": test_val["train"],
             "test": test_val["test"],
         })
+
+    def format_for_training(self, tokenizer, max_length=512, include_response=True):
+        self.tokenizer = tokenizer
+
+        def format_example(example):
+            text = example["text"]
+            label_str = LABEL_MAP[example["label"]]
+            prompt = self.prompt_template.format(text=text)
+            if include_response:
+                full_text = f"{prompt} {label_str}"
+            else:
+                full_text = prompt
+            return {"formatted_text": full_text, "label_str": label_str}
+
+        formatted = self.dataset.map(format_example)
+
+        def tokenize(example):
+            return tokenizer(
+                example["formatted_text"],
+                truncation=True,
+                max_length=max_length,
+                padding="max_length",
+            )
+
+        tokenized = formatted.map(tokenize, batched=True)
+        return tokenized
