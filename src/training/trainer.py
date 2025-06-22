@@ -174,3 +174,31 @@ class FinLLMTrainer:
         if self.trainer is None:
             raise ValueError("Train first")
         return self.trainer.evaluate(dataset)
+
+
+    def load(self, path):
+        """Load a fine-tuned LoRA model."""
+        from peft import PeftModel
+        self.setup_model()
+        self.model = PeftModel.from_pretrained(self.model, path)
+
+    @staticmethod
+    def merge_and_save(base_model, lora_path, output_path):
+        """Merge LoRA weights into base model and save."""
+        from peft import PeftModel
+
+        print(f"Loading base: {base_model}")
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model, torch_dtype=torch.float16, device_map="auto",
+        )
+        tokenizer = AutoTokenizer.from_pretrained(base_model)
+
+        print(f"Loading LoRA: {lora_path}")
+        model = PeftModel.from_pretrained(model, lora_path)
+
+        print("Merging weights...")
+        model = model.merge_and_unload()
+
+        print(f"Saving to: {output_path}")
+        model.save_pretrained(output_path)
+        tokenizer.save_pretrained(output_path)
