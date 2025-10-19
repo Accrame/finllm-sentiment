@@ -65,7 +65,7 @@ def main():
         - **Base**: Mistral-7B
         - **Method**: QLoRA (4-bit)
         - **Dataset**: Financial PhraseBank
-        - **Accuracy**: ~87%
+        - **Status**: Demo (keyword-based)
         """)
 
     tab1, tab2, tab3 = st.tabs(["🔍 Analyze", "📊 Batch Analysis", "📈 Model Performance"])
@@ -175,23 +175,20 @@ def main():
 
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("### Training Metrics")
+            st.markdown("### Expected Metrics (from literature)")
+            st.info("Full training run not yet completed. "
+                    "Numbers below are targets based on published QLoRA benchmarks.")
             import pandas as pd
             perf = {
-                "Metric": ["Accuracy", "F1 (Macro)", "F1 (Weighted)", "Precision", "Recall"],
-                "FinLLM (Fine-tuned)": ["87.2%", "85.8%", "87.0%", "86.1%", "85.5%"],
-                "Base Mistral-7B": ["71.3%", "68.2%", "70.9%", "69.4%", "67.1%"],
+                "Metric": ["Accuracy", "F1 (Macro)"],
+                "Fine-tuned (target)": ["~88-90%", "~86-88%"],
+                "Base Mistral-7B": ["~72%", "~68%"],
             }
             st.table(pd.DataFrame(perf))
 
-            st.markdown("### Per-Class")
-            cls = {
-                "Class": ["Positive", "Negative", "Neutral"],
-                "Precision": ["88.2%", "85.1%", "84.9%"],
-                "Recall": ["86.7%", "87.3%", "82.5%"],
-                "F1": ["87.4%", "86.2%", "83.7%"],
-            }
-            st.table(pd.DataFrame(cls))
+            st.markdown("### Current demo")
+            st.warning("The demo uses keyword matching as a placeholder. "
+                       "Connect a trained adapter to get real model predictions.")
 
         with col2:
             st.markdown("### Training Config")

@@ -18,17 +18,19 @@ I waited for Llama 3 and Mistral to mature before starting, so I could use recen
 3. Fine-tune with LoRA (only ~4M params out of 7B — 0.06%)
 4. Evaluate against base model and FinBERT
 
-## Results
+## Expected results
 
-| Model | PhraseBank Acc | FiQA Acc |
-|-------|---------------|----------|
-| FinBERT (baseline) | 87.2% | 85.1% |
-| Mistral-7B (no fine-tuning) | 72.4% | 68.9% |
-| **Mistral + LoRA** | **89.8%** | **88.3%** |
-| Llama-3-8B (no fine-tuning) | 74.1% | 70.2% |
-| **Llama-3 + LoRA** | **90.2%** | **89.1%** |
+Based on published benchmarks for similar QLoRA setups:
 
-Training takes ~2 hours on a single A100 with 4-bit quantization (~16GB VRAM).
+| Model | PhraseBank Acc (expected) |
+|-------|--------------------------|
+| FinBERT (baseline) | ~87% |
+| Mistral-7B (no fine-tuning) | ~72% |
+| Mistral + LoRA | ~88-90% |
+| Llama-3-8B (no fine-tuning) | ~74% |
+| Llama-3 + LoRA | ~89-91% |
+
+I haven't completed a full training run yet — the pipeline is set up and ready but I need to do the actual fine-tuning on a GPU instance (Colab A100 or similar, ~2 hours with 4-bit quantization). The numbers above are targets based on what similar setups achieve in the literature.
 
 ## Setup
 
